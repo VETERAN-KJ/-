@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#0d0809" />
+<title>There Are Things I Should've Said</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d0809;
+    --card:#1a1215;
+    --card-2:#211619;
+    --text:#ede0d4;
+    --text-2:#b8a99a;
+    --faded:#8a7e76;
+    --pink:#ff6b8a;
+    --rose:#ff2d55;
+    --pink-soft:#ff9fb3;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Lora',Georgia,'Times New Roman',serif;
+    background:
+      radial-gradient(900px 620px at 10% 6%, rgba(255,45,85,.12), transparent 60%),
+      radial-gradient(820px 700px at 92% 94%, rgba(255,107,138,.09), transparent 60%),
+      radial-gradient(620px 520px at 50% 55%, rgba(255,107,138,.05), transparent 70%),
+      var(--bg);
+    color:var(--text);
+    overflow:hidden;
+    height:100dvh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- ambient glows + particles ---------- */
+  #particles{position:fixed;inset:0;z-index:0;pointer-events:none;}
+  .glow{position:fixed;border-radius:50%;filter:blur(90px);z-index:0;pointer-events:none;will-change:transform;}
+  .glow-1{width:460px;height:460px;top:-140px;left:-130px;background:radial-gradient(circle,rgba(255,45,85,.22),transparent 70%);animation:float1 19s ease-in-out infinite;}
+  .glow-2{width:520px;height:520px;bottom:-180px;right:-150px;background:radial-gradient(circle,rgba(255,107,138,.18),transparent 70%);animation:float2 23s ease-in-out infinite;}
+  .glow-3{width:340px;height:340px;top:40%;left:60%;background:radial-gradient(circle,rgba(255,45,85,.10),transparent 70%);animation:float3 27s ease-in-out infinite;}
+  @keyframes float1{50%{transform:translate(60px,40px) scale(1.1);}}
+  @keyframes float2{50%{transform:translate(-50px,-30px) scale(1.08);}}
+  @keyframes float3{50%{transform:translate(-80px,50px) scale(1.15);}}
+
+  /* ---------- top bar / controls ---------- */
+  #progress-bar{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.05);z-index:70;}
+  #progress-fill{height:100%;width:6%;background:linear-gradient(90deg,var(--rose),var(--pink));box-shadow:0 0 14px rgba(255,107,138,.75);transition:width .8s cubic-bezier(.22,1,.36,1);}
+
+  #back-btn{
+    position:fixed;top:16px;left:16px;z-index:70;
+    font-family:'Caveat',cursive;font-size:1.3rem;color:var(--pink-soft);
+    background:rgba(26,18,21,.55);border:1px solid rgba(255,107,138,.25);
+    padding:3px 16px 5px;border-radius:999px;cursor:pointer;backdrop-filter:blur(8px);
+    opacity:0;transform:translateY(-8px);pointer-events:none;transition:.45s ease;line-height:1.2;
+  }
+  #back-btn.show{opacity:1;transform:none;pointer-events:auto;}
+  #back-btn:hover{background:rgba(255,45,85,.18);color:#fff;}
+
+  #counter{position:fixed;top:18px;right:20px;z-index:70;font-family:'Caveat',cursive;color:var(--faded);font-size:1.18rem;letter-spacing:2px;transition:opacity .4s;}
+
+  /* ---------- stage + pages ---------- */
+  #stage{position:relative;height:100dvh;width:100%;z-index:10;}
+  .page{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    padding:58px 18px 44px;overflow-y:auto;
+    opacity:0;visibility:hidden;transform:translateY(22px);
+    transition:opacity .8s ease, transform .8s cubic-bezier(.22,1,.36,1);
+  }
+  .page.active{opacity:1;visibility:visible;transform:translateY(0);}
+  .page::-webkit-scrollbar{width:0;height:0;}
+  .page{scrollbar-width:none;}
+
+  .card{
+    position:relative;width:100%;max-width:680px;
+    background:linear-gradient(160deg,var(--card),var(--card-2));
+    border:1px solid rgba(255,107,138,.13);
+    border-radius:24px;padding:30px 40px 26px;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.03);
+    backdrop-filter:blur(4px);
+  }
+  @media(max-width:560px){.card{padding:26px 20px 22px;border-radius:20px;}.page-body p{font-size:1rem;}.page-body ul li{font-size:.98rem;}}
+
+  /* ---------- typography ---------- */
+  .page-title{
+    font-family:'Caveat',cursive;font-weight:600;
+    font-size:clamp(2.5rem,5.8vw,3.4rem);line-height:1.04;color:#efe3d8;
+    margin:0 0 .3em;text-shadow:0 2px 34px rgba(255,45,85,.22);
+  }
+  .cover-name{
+    font-size:clamp(3.8rem,12vw,6rem);color:#ff8fa9;
+    text-shadow:0 6px 50px rgba(255,45,85,.45);margin:0 0 .25em;
+  }
+  .subtitle{font-family:'Caveat',cursive;color:var(--pink);font-size:1.55rem;margin:-.3em 0 0.6em;}
+  .cover-line{font-family:'Lora',serif;font-size:clamp(1.1rem,3.4vw,1.45rem);color:var(--text-2);font-style:italic;line-height:1.7;max-width:30ch;}
+
+  .page-body p{font-family:'Lora',serif;color:var(--text);font-size:1.07rem;line-height:1.55;margin:0 0 0.55em;max-width:62ch;}
+  .page-body p:first-child{margin-top:.4em;}
+  .page-body .lead{font-size:1.13rem;color:#f4e9dd;}
+  .page-body .dim{color:var(--text-2);}
+
+  .page-body ul{list-style:none;padding:0;margin:.1em 0 0.7em;}
+  .page-body ul li{position:relative;padding-left:1.6em;margin:.26em 0;color:var(--text);font-family:'Lora',serif;line-height:1.4;font-size:1.04rem;}
+  .page-body ul li::before{content:"";position:absolute;left:.25em;top:.62em;width:9px;height:9px;border-radius:50%;background:var(--pink);box-shadow:0 0 9px rgba(255,107,138,.65);}
+
+  .num-item{margin:.6em 0;}
+  .num-head{font-family:'Caveat',cursive;color:var(--pink-soft);font-size:1.5rem;display:flex;gap:.45em;align-items:baseline;line-height:1.1;}
+  .num-head .n{color:var(--rose);}
+  .num-item p{margin:.18em 0 .05em;}
+
+  .quote{font-family:'Lora',serif;font-style:italic;color:var(--pink-soft);
+    border-left:2px solid rgba(255,45,85,.5);padding:.12em 0 .12em 1em;
+    margin:.6em 0;font-size:1.1rem;background:linear-gradient(90deg,rgba(255,45,85,.06),transparent);}
+
+  /* ---------- next button ---------- */
+  .next-btn{
+    margin-top:.55em;font-family:'Caveat',cursive;font-size:1.5rem;color:#fff;
+    background:linear-gradient(135deg,var(--rose),var(--pink));border:none;
+    padding:.42em 2.1em;border-radius:999px;cursor:pointer;letter-spacing:.5px;
+    box-shadow:0 10px 34px rgba(255,45,85,.4);transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .next-btn:hover{transform:translateY(-3px);box-shadow:0 16px 46px rgba(255,45,85,.6);}
+  .next-btn::after{content:"  →";}
+
+  /* ---------- doodles ---------- */
+  .doodle{position:absolute;pointer-events:none;opacity:0;transform:scale(.8) rotate(-7deg);transition:opacity 1s ease,transform 1.1s cubic-bezier(.22,1,.36,1);transition-delay:var(--d,.15s);}
+  .page.active .doodle{opacity:.5;transform:none;}
+  .page.active .doodle.d-bright{opacity:.72;}
+  .doodle svg{width:100%;height:100%;display:block;filter:url(#rough);}
+  .pos-tl{top:16px;left:18px;} .pos-tr{top:16px;right:18px;}
+  .pos-bl{bottom:16px;left:18px;} .pos-br{bottom:16px;right:18px;}
+
+  /* ---------- specials ---------- */
+  .travel{margin:.6em 0 .4em;}
+  .travel-svg{width:100%;height:auto;overflow:visible;}
+  .tr-lbl{font-family:'Caveat',cursive;font-size:15px;fill:var(--faded);}
+
+  .pulse-wrap{display:flex;justify-content:center;margin:.4em 0 1em;}
+  .heart-pulse{width:84px;height:84px;overflow:visible;}
+  .heart-pulse path{transform-box:fill-box;transform-origin:center;animation:beat 1.6s ease-in-out infinite;filter:drop-shadow(0 0 12px rgba(255,45,85,.6));}
+  @keyframes beat{0%,100%{transform:scale(1);}14%{transform:scale(1.2);}28%{transform:scale(.95);}42%{transform:scale(1.12);}}
+
+  .journal{display:flex;justify-content:center;margin:.6em 0 1.1em;}
+  .journal-page{position:relative;width:150px;height:104px;background:#1c1014;border:1px solid rgba(255,107,138,.18);border-radius:6px;padding:14px 12px;box-shadow:0 12px 30px rgba(0,0,0,.4);transform:rotate(-2deg);}
+  .jp-line{height:5px;border-radius:3px;background:rgba(255,107,138,.16);margin:0 0 9px;}
+  .jp-line.w1{width:80%;background:rgba(255,45,85,.3);} .jp-line.w2{width:95%;} .jp-line.w3{width:70%;} .jp-line.w4{width:88%;} .jp-line.w5{width:60%;}
+  .jp-bookmark{position:absolute;top:-4px;right:22px;width:14px;height:34px;background:linear-gradient(var(--rose),var(--pink));border-radius:2px 2px 0 0;box-shadow:0 0 10px rgba(255,45,85,.5);}
+
+  .ul{position:relative;color:#fff;white-space:nowrap;}
+  .ul::after{content:"";position:absolute;left:0;right:0;bottom:.04em;height:.17em;border-radius:9px;background:linear-gradient(90deg,var(--rose),var(--pink));box-shadow:0 0 10px rgba(255,107,138,.65);transform:scaleX(0);transform-origin:left;}
+  .page.in .ul::after{animation:ulgrow 1.7s .55s cubic-bezier(.22,1,.36,1) forwards;}
+  @keyframes ulgrow{to{transform:scaleX(1);}}
+
+  /* ---------- voice note ---------- */
+  .voice{display:flex;flex-direction:column;align-items:center;gap:14px;margin:1.4em 0 .2em;}
+  .waveform{display:flex;align-items:center;gap:3px;height:60px;}
+  .waveform .bar{width:4px;border-radius:4px;background:linear-gradient(var(--rose),var(--pink));height:10px;opacity:.45;transition:opacity .3s;}
+  .waveform.playing .bar{opacity:.95;animation:wv var(--dur,1s) ease-in-out infinite;animation-delay:var(--delay,0s);}
+  @keyframes wv{0%,100%{height:8px;}50%{height:var(--h,38px);}}
+  .play-btn{position:relative;width:92px;height:92px;border-radius:50%;border:none;color:#fff;cursor:pointer;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--rose),var(--pink));box-shadow:0 14px 44px rgba(255,45,85,.45);transition:transform .2s;}
+  .play-btn:hover{transform:scale(1.05);}
+  .play-btn::before{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:0 0 0 0 rgba(255,45,85,.5);animation:ring 2.4s ease-out infinite;}
+  @keyframes ring{0%{box-shadow:0 0 0 0 rgba(255,45,85,.5);}70%{box-shadow:0 0 0 24px rgba(255,45,85,0);}100%{box-shadow:0 0 0 0 rgba(255,45,85,0);}}
+  .play-btn svg{width:34px;height:34px;}
+  .voice-meta{font-family:'Caveat',cursive;color:var(--text-2);font-size:1.2rem;letter-spacing:.5px;}
+  .voice-meta .dot{margin:0 .5em;color:var(--faded);}
+
+  .signature{font-family:'Caveat',cursive;font-size:2.1rem;color:var(--pink-soft);margin-top:1.3em;text-align:right;text-shadow:0 2px 20px rgba(255,45,85,.3);}
+
+  /* ---------- final screen ---------- */
+  .final-card{text-align:center;background:transparent;border:none;box-shadow:none;max-width:560px;}
+  .final-card .moon-emoji{font-size:2.6rem;opacity:.8;margin-bottom:.4em;}
+  .final-title{font-family:'Caveat',cursive;font-size:clamp(2.6rem,7vw,3.7rem);color:#efe3d8;text-shadow:0 2px 34px rgba(255,45,85,.25);margin:0 0 .5em;}
+  .final-sub{font-family:'Caveat',cursive;color:var(--pink);font-size:1.6rem;margin:.4em 0;}
+  .final-name{font-family:'Caveat',cursive;color:var(--pink-soft);font-size:1.95rem;text-shadow:0 2px 20px rgba(255,45,85,.3);}
+  .final-line{width:120px;height:1px;margin:1.4em auto;background:linear-gradient(90deg,transparent,rgba(255,107,138,.5),transparent);}
+
+  .footer-hint{position:fixed;bottom:14px;left:0;right:0;text-align:center;font-family:'Caveat',cursive;color:var(--faded);font-size:1.05rem;z-index:60;opacity:.7;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms!important;animation-iteration-count:1!important;}
+    .glow{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- rough/sketch filter for doodles -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="rough">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/>
+    </filter>
+  </defs>
+</svg>
+
+<canvas id="particles"></canvas>
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+<div class="glow glow-3"></div>
+
+<div id="progress-bar"><div id="progress-fill"></div></div>
+<button id="back-btn">← back</button>
+<div id="counter">01 / 14</div>
+
+<main id="stage"></main>
+
+<div class="footer-hint">use ← → arrows to turn the pages</div>
+
+<script>
+/* ============================================================
+   DOODLE LIBRARY  (hand-drawn SVG strokes, viewBox 0 0 100 100)
+   ============================================================ */
+const S = 'fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"';
+const DOODLES = {
+  moon:`<svg viewBox="0 0 100 100"><path ${S} d="M70 20 a34 34 0 1 0 26 50 a27 27 0 1 1 -26 -50 Z"/></svg>`,
+  star:`<svg viewBox="0 0 100 100"><path ${S} d="M50 12 L58 37 L85 38 L63 55 L71 82 L50 66 L29 82 L37 55 L15 38 L42 37 Z"/></svg>`,
+  heart:`<svg viewBox="0 0 100 100"><path ${S} d="M50 86 C18 64 10 42 24 30 C34 21 47 25 50 39 C53 25 66 21 76 30 C90 42 82 64 50 86 Z"/></svg>`,
+  plane:`<svg viewBox="0 0 100 100"><path ${S} d="M14 52 L86 16 L54 86 L47 58 Z"/><path ${S} d="M47 58 L86 16"/></svg>`,
+  cloud:`<svg viewBox="0 0 100 100"><path ${S} d="M30 62 a11 11 0 0 1 4 -21 a15 15 0 0 1 28 -3 a11 11 0 0 1 8 22 Z"/></svg>`,
+  eye:`<svg viewBox="0 0 100 100"><path ${S} d="M14 50 C28 30 72 30 86 50 C72 70 28 70 14 50 Z"/><circle ${S} cx="50" cy="50" r="12"/><circle fill="currentColor" stroke="none" cx="50" cy="50" r="4"/></svg>`,
+  infinity:`<svg viewBox="0 0 100 100"><path ${S} d="M50 50 C40 34 18 34 18 50 C18 66 40 66 50 50 C60 34 82 34 82 50 C82 66 60 66 50 50 Z"/></svg>`,
+  pencil:`<svg viewBox="0 0 100 100"><path ${S} d="M76 20 L84 28 L36 76 L22 74 L28 66 Z"/><path ${S} d="M70 24 L78 32"/><path fill="currentColor" fill-opacity=".18" stroke="currentColor" stroke-width="3" d="M22 74 L28 66 L36 76 Z"/></svg>`,
+  cross:`<svg viewBox="0 0 100 100"><path ${S} d="M28 28 L72 72"/><path ${S} d="M72 28 L28 72"/></svg>`,
+  scribble:`<svg viewBox="0 0 100 100"><path ${S} d="M14 46 q8 -13 16 0 t16 0 t16 0 t16 0 t12 0"/><path ${S} d="M16 60 q8 11 16 0 t16 0 t16 0 t16 0 t12 0"/></svg>`,
+  speech:`<svg viewBox="0 0 100 100"><path ${S} d="M22 26 H78 a7 7 0 0 1 7 7 V55 a7 7 0 0 1 -7 7 H44 L30 76 L34 62 H22 a7 7 0 0 1 -7 -7 V33 a7 7 0 0 1 7 -7 Z"/></svg>`,
+  dots:`<svg viewBox="0 0 100 100"><circle fill="currentColor" stroke="none" cx="24" cy="50" r="5"/><circle fill="currentColor" stroke="none" cx="50" cy="50" r="5"/><circle fill="currentColor" stroke="none" cx="76" cy="50" r="5"/></svg>`,
+  bookmark:`<svg viewBox="0 0 100 100"><path ${S} d="M30 14 H70 V86 L50 70 L30 86 Z"/></svg>`,
+  spiral:`<svg viewBox="0 0 100 100"><path ${S} d="M50 50 q 7 0 7 7 q 0 11 -11 11 q -15 0 -15 -15 q 0 -19 19 -19 q 23 0 23 23"/></svg>`,
+  leaf:`<svg viewBox="0 0 100 100"><path ${S} d="M50 14 C78 24 82 58 50 88 C18 58 22 24 50 14 Z"/><path ${S} d="M50 22 L50 82"/></svg>`,
+  flower:`<svg viewBox="0 0 100 100"><circle ${S} cx="33" cy="33" r="9"/><circle ${S} cx="67" cy="33" r="9"/><circle ${S} cx="33" cy="67" r="9"/><circle ${S} cx="67" cy="67" r="9"/><circle fill="currentColor" stroke="none" cx="50" cy="50" r="7"/></svg>`,
+  diamond:`<svg viewBox="0 0 100 100"><path ${S} d="M50 14 L82 50 L50 86 L18 50 Z"/><path ${S} d="M50 14 L50 86"/><path ${S} d="M18 50 L82 50"/></svg>`,
+  arrow:`<svg viewBox="0 0 100 100"><path ${S} d="M16 50 H74"/><path ${S} d="M74 50 L60 38"/><path ${S} d="M74 50 L60 62"/></svg>`,
+  bubble:`<svg viewBox="0 0 100 100"><circle ${S} cx="50" cy="44" r="26"/><path ${S} d="M38 64 L30 80 L48 66"/></svg>`,
+  cassette:`<svg viewBox="0 0 100 100"><rect ${S} x="14" y="30" width="72" height="40" rx="7"/><circle ${S} cx="36" cy="50" r="9"/><circle ${S} cx="64" cy="50" r="9"/><circle fill="currentColor" stroke="none" cx="36" cy="50" r="2.5"/><circle fill="currentColor" stroke="none" cx="64" cy="50" r="2.5"/><path ${S} d="M26 70 H74"/></svg>`,
+  mic:`<svg viewBox="0 0 100 100"><rect ${S} x="40" y="16" width="20" height="36" rx="10"/><path ${S} d="M30 46 a20 20 0 0 0 40 0"/><path ${S} d="M50 66 L50 78"/><path ${S} d="M38 82 H62"/></svg>`,
+  flourish:`<svg viewBox="0 0 100 100"><path ${S} d="M16 84 C16 50 50 16 84 16"/><path ${S} d="M84 16 C70 22 60 30 54 42"/><path ${S} d="M30 70 q7 -7 13 -2 q-7 -2 -9 -9"/><path fill="currentColor" fill-opacity=".2" stroke="currentColor" stroke-width="3" d="M44 40 C54 36 58 48 48 52 C40 55 37 46 44 40 Z"/></svg>`
+};
+
+/* ============================================================
+   SPECIAL BLOCKS (unique designs per page)
+   ============================================================ */
+const SPECIALS = {
+  // PAGE 3 — khurai. damoh. (travel path)
+  travel:`<div class="travel">
+    <svg viewBox="0 0 320 95" class="travel-svg" preserveAspectRatio="xMidYMid meet">
+      <path id="tpath" d="M18 66 Q 100 30 196 50 T 302 34" fill="none" stroke="#ff6b8a" stroke-width="2.2" stroke-dasharray="2 9" stroke-linecap="round" opacity="0.5"/>
+      <g>
+        <animateMotion dur="9s" repeatCount="indefinite" rotate="0"><mpath href="#tpath"/></animateMotion>
+        <g style="filter:url(#rough)">
+          <rect x="-34" y="-36" width="68" height="32" rx="6" fill="rgba(255,45,85,0.08)" stroke="#ff2d55" stroke-width="3"/>
+          <path d="M34 -36 L40 -27 L40 -4 L34 -4" fill="none" stroke="#ff2d55" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="-18" y="-43" width="36" height="5" rx="2" fill="none" stroke="#ff6b8a" stroke-width="2"/>
+          <path d="M22 -31 L34 -31 L34 -23 L22 -23" fill="none" stroke="#ff9fb3" stroke-width="2"/>
+          <rect x="-28" y="-31" width="11" height="9" rx="1.5" fill="none" stroke="#ff9fb3" stroke-width="2"/>
+          <rect x="-15" y="-31" width="11" height="9" rx="1.5" fill="none" stroke="#ff9fb3" stroke-width="2"/>
+          <rect x="-2" y="-31" width="11" height="9" rx="1.5" fill="none" stroke="#ff9fb3" stroke-width="2"/>
+          <path d="M-28 -18 L-21 -18 L-21 -8" fill="none" stroke="#ff9fb3" stroke-width="2"/>
+          <circle cx="-18" cy="-6" r="6" fill="#0d0809" stroke="#ff2d55" stroke-width="2.8"/>
+          <circle cx="20" cy="-6" r="6" fill="#0d0809" stroke="#ff2d55" stroke-width="2.8"/>
+          <circle cx="38" cy="-16" r="1.8" fill="#ffd27a"/>
+        </g>
+      </g>
+      <text x="4" y="88" class="tr-lbl">damoh</text>
+      <text x="258" y="22" class="tr-lbl">school</text>
+    </svg>
+  </div>`,
+  // PAGE 4 — what you became to me (heart pulse)
+  pulse:`<div class="pulse-wrap">
+    <svg viewBox="0 0 100 90" class="heart-pulse">
+      <path d="M50 82 C20 62 10 42 24 30 C35 21 47 26 50 40 C53 26 65 21 76 30 C90 42 80 62 50 82 Z" fill="#ff2d55" opacity="0.92"/>
+    </svg>
+  </div>`,
+  // PAGE 6 — those 80 days (journal page)
+  journal:`<div class="journal"><div class="journal-page">
+    <div class="jp-line w1"></div><div class="jp-line w2"></div><div class="jp-line w3"></div><div class="jp-line w4"></div><div class="jp-line w5"></div>
+    <div class="jp-bookmark"></div>
+  </div></div>`,
+  // PAGE 12 — voice note player
+  voice:`<div class="voice">
+    <div class="waveform" id="waveform"></div>
+    <button class="play-btn" id="playBtn" aria-label="Play voice note"></button>
+    <div class="voice-meta"><span id="vtime">2:00</span><span class="dot">·</span><span>in my voice</span></div>
+    <audio id="voicenote" preload="none"></audio>
+  </div>`,
+  // PAGE 14 — signature
+  signature:`<div class="signature">— always, <span style="color:#fff">Sahil</span></div>`
+};
+
+/* ============================================================
+   PAGE CONTENT
+   ============================================================ */
+const PAGES = [
+  // 1 — COVER
+  { title:'Sakshi,', titleClass:'cover-name',
+    blocks:[{type:'p',text:"There are things I should've said a long time ago.",class:'cover-line'}],
+    doodles:[{name:'moon',pos:'tr',size:88,color:'#ff6b8a',bright:true},
+             {name:'star',pos:'tl',size:30,color:'#ff9fb3'},
+             {name:'star',pos:'bl',size:22,color:'#ff6b8a'},
+             {name:'star',pos:'br',size:34,color:'#ff9fb3',bright:true}],
+    next:'begin' },
+
+  // 2 — FIRST MEETING
+  { title:'August 13, 2022',
+    blocks:[
+      {type:'p',text:'Around 7:30 that day, I saw you for the first time. I asked a friend, \u201Cwho\u2019s that pretty girl?\u201D'},
+      {type:'p',text:"I didn\u2019t know it then, but that moment would become the start of something that would matter a lot to me.",class:'dim'}
+    ],
+    doodles:[{name:'eye',pos:'tr',size:74,color:'#ff6b8a'},{name:'heart',pos:'br',size:40,color:'#ff2d55',bright:true}],
+    next:'continue' },
+
+  // 3 — KHURAI. DAMOH.
+  { title:'khurai. damoh.',
+    blocks:[
+      {type:'p',text:'Some of my favorite memories of us are the ones I didn\u2019t even realize I was making.'},
+      {type:'p',text:'Those journeys back to school.',class:'lead'},
+      {type:'p',text:'Khurai to school.'},
+      {type:'p',text:'Damoh to school.'},
+      {type:'p',text:'Just talking.',class:'lead'},
+      {type:'p',text:'Nothing special was happening, but somehow those conversations became some of the moments I look back on the most.',class:'dim'}
+    ],
+    special:'travel',
+    doodles:[{name:'plane',pos:'tr',size:70,color:'#ff6b8a'},{name:'cloud',pos:'tl',size:62,color:'#b8a99a'}],
+    next:'continue' },
+
+  // 4 — WHAT YOU BECAME TO ME
+  { title:'what you became to me', subtitle:'you were never \u201Cjust a friend\u201D',
+    blocks:[
+      {type:'p',text:'You were the reason I checked my phone. One message from you could completely change my mood. Even the most random conversations felt important because they were with you.'},
+      {type:'p',text:'And I treated you like you\u2019d always be there. Like nothing could really happen to us.',class:'dim'},
+      {type:'p',text:'That was my mistake.',class:'lead'}
+    ],
+    special:'pulse',
+    doodles:[{name:'heart',pos:'tr',size:46,color:'#ff2d55',bright:true},{name:'infinity',pos:'bl',size:60,color:'#ff6b8a'}],
+    next:'continue' },
+
+  // 5 — THE TRUTH
+  { title:"here's the truth",
+    blocks:[
+      {type:'p',text:'I was wrong.',class:'lead'},
+      {type:'p',text:"I\u2019m not saying that to defend myself or explain it away. I was wrong."},
+      {type:'p',text:'You were trying to tell me things, and I wasn\u2019t really listening.'},
+      {type:'p',text:'You were hurting, and I kept thinking things would work themselves out.'},
+      {type:'p',text:'You wanted effort, and I stopped putting it in.'},
+      {type:'p',text:'You needed to feel that I was there.'},
+      {type:'p',text:'And I failed at that.',class:'lead'}
+    ],
+    doodles:[{name:'pencil',pos:'tr',size:74,color:'#ff6b8a'},{name:'scribble',pos:'bl',size:80,color:'#ff2d55'}],
+    next:'continue' },
+
+  // 6 — THOSE 80 DAYS
+  { title:'those 80 days',
+    blocks:[
+      {type:'p',text:"I\u2019ve gone back and read our conversations so many times."},
+      {type:'p',text:'I know that because of me, you cried. I know you filled pages of your journal writing about me.'},
+      {type:'p',text:"Those days weren\u2019t easy for me either, but that doesn\u2019t change what you went through. It doesn\u2019t make your pain smaller.",class:'dim'},
+      {type:'p',text:'I missed you for 80 days.',class:'lead'},
+      {type:'p',text:'But you didn\u2019t just miss me. You had to live through all of it.'},
+      {type:'p',text:'I didn\u2019t understand that until much later.',class:'dim'}
+    ],
+    special:'journal',
+    doodles:[{name:'bookmark',pos:'tr',size:52,color:'#ff6b8a',bright:true},{name:'spiral',pos:'bl',size:60,color:'#b8a99a'}],
+    next:'continue' },
+
+  // 7 — WHAT YOU FELT
+  { title:'what you felt',
+    blocks:[
+      {type:'p',text:'On June 10, you said everything.'},
+      {type:'p',text:'And every word stayed with me.'},
+      {type:'p',text:'You felt like:'},
+      {type:'list',items:[
+        'You were being ignored',
+        'Your trust was breaking',
+        'You were ending up as the reason for problems when the fault was mine',
+        'You were alone in it',
+        'You needed comfort, and I kept giving explanations'
+      ]},
+      {type:'p',text:'You said,'},
+      {type:'quote',text:'\u201CThe cake wasn\u2019t ordinary, you were just too used to having it.\u201D'},
+      {type:'p',text:'You were right.',class:'lead'},
+      {type:'p',text:'I got so used to having you in my life that I stopped appreciating what I had.',class:'dim'}
+    ],
+    doodles:[{name:'speech',pos:'tr',size:66,color:'#ff6b8a'},{name:'dots',pos:'br',size:48,color:'#ff9fb3'}],
+    next:'continue' },
+
+  // 8 — WHAT I FAILED TO ANSWER
+  { title:'what I failed to answer',
+    blocks:[
+      {type:'p',text:'A general \u201Csorry\u201D isn\u2019t enough, so here are the things I should\u2019ve understood.'},
+      {type:'numbered',items:[
+        {head:'\u201CEffortless.\u201D', body:['I kept thinking, \u201CI\u2019ll talk to her later.\u201D','But while I was putting it off, you were sitting with those feelings, and I didn\u2019t even realize how much it was affecting you.']},
+        {head:'When you unblocked me.', body:['I kept waiting for the perfect time to say something.','There wasn\u2019t one.','I should\u2019ve said something right away.']},
+        {head:'My silence.', body:['You were hurting, and I stayed quiet.','I didn\u2019t realize that saying nothing could hurt someone too.','But it did.']}
+      ]}
+    ],
+    doodles:[{name:'pencil',pos:'tl',size:64,color:'#ff6b8a'},{name:'plane',pos:'tr',size:52,color:'#ff9fb3'},{name:'cross',pos:'br',size:42,color:'#ff2d55'}],
+    next:'continue' },
+
+  // 9 — WHAT I UNDERSTAND NOW
+  { title:'what I understand now',
+    blocks:[
+      {type:'p',text:"You weren\u2019t asking for anything complicated."},
+      {type:'p',text:'You wanted to know I was there.',class:'lead'},
+      {type:'p',text:'You wanted effort.',class:'lead'},
+      {type:'p',text:'You wanted me to show it.',class:'lead'},
+      {type:'p',text:'And I treated those things like they\u2019d always be there no matter what.',class:'dim'},
+      {type:'p',text:"But they don't work like that."},
+      {type:'p',text:'Every relationship needs care, and I stopped giving it the care it deserved.'},
+      {type:'p',text:'And too many times, I answered with silence.',class:'dim'}
+    ],
+    doodles:[{name:'leaf',pos:'tr',size:64,color:'#ff6b8a'},{name:'flower',pos:'bl',size:62,color:'#ff9fb3'}],
+    next:'continue' },
+
+  // 10 — THIS STOPS NOW
+  { title:'this <span class="ul">stops now</span>',
+    blocks:[
+      {type:'p',text:"No more excuses when I\u2019m wrong. I\u2019ll just say it."},
+      {type:'p',text:'No more telling you \u201Cit\u2019s oky\u201D when you\u2019re hurting, just to push it aside.'},
+      {type:'p',text:'No more waiting for the perfect moment.'},
+      {type:'p',text:'What you tell me stays with me.',class:'lead'},
+      {type:'p',text:"And I\u2019ll start expressing myself, even if I\u2019m bad at it at first."}
+    ],
+    doodles:[{name:'diamond',pos:'tr',size:54,color:'#ff6b8a',bright:true},{name:'arrow',pos:'br',size:58,color:'#ff2d55'}],
+    next:'continue' },
+
+  // 11 — THE SPECIFIC ONES
+  { title:'the specific ones',
+    blocks:[
+      {type:'p',text:'I\u2019ll reach out too. Messages, calls, vc. I should\u2019ve been doing that.'},
+      {type:'p',text:"I\u2019m not going to ask you to trust me again. I\u2019ll show you why you can.",class:'lead'},
+      {type:'p',text:'And I\u2019ll express myself. It might be slow and awkward, but I\u2019ll do it.'},
+      {type:'p',text:'If I make the same mistake again, I shouldn\u2019t need you to point it out. I should catch it myself.',class:'dim'}
+    ],
+    doodles:[{name:'heart',pos:'tr',size:46,color:'#ff2d55',bright:true},{name:'bubble',pos:'bl',size:54,color:'#ff6b8a'},{name:'infinity',pos:'br',size:50,color:'#ff9fb3'}],
+    next:'continue' },
+
+  // 12 — VOICE NOTE
+  { title:'',
+    blocks:[
+      {type:'p',text:'some things sound different when they\u2019re spoken.',class:'lead'}
+    ],
+    special:'voice',
+    doodles:[{name:'cassette',pos:'tr',size:64,color:'#ff6b8a'},{name:'mic',pos:'bl',size:56,color:'#ff9fb3'}],
+    next:'continue' },
+
+  // 13 — FROM MY SIDE
+  { title:'from my side',
+    blocks:[
+      {type:'p',text:"I\u2019m not here asking you to forgive me."},
+      {type:'p',text:'That\u2019s your choice. Your timeline.',class:'dim'},
+      {type:'p',text:'I just want to say this:'},
+      {type:'list',items:[
+        'I know I was wrong.',
+        'You matter to me. You always have.',
+        'I\u2019m going to try, and this time with actual effort, not just words.'
+      ]},
+      {type:'p',text:'If I get another chance, I won\u2019t take it for granted.',class:'lead'},
+      {type:'p',text:'And if I don\u2019t, I still needed to say all of this.'},
+      {type:'p',text:'Because it\u2019s the truth.'}
+    ],
+    doodles:[{name:'leaf',pos:'tr',size:60,color:'#ff6b8a'},{name:'star',pos:'br',size:42,color:'#ff9fb3',bright:true}],
+    next:'continue' },
+
+  // 14 — THANK YOU
+  { title:'thank you, Sakshi',
+    blocks:[
+      {type:'p',text:'Thank you for being you.'},
+      {type:'p',text:'Thank you for letting me know you.'},
+      {type:'p',text:'And thank you for being honest on June 10, even when it was hard to hear.'},
+      {type:'p',text:'That day stayed with me more than anything else.',class:'dim'},
+      {type:'p',text:'You once said,'},
+      {type:'quote',text:'\u201CThe hardest goodbyes are to the people we once loved the most.\u201D'},
+      {type:'p',text:"I\u2019m not ready to accept that goodbye.",class:'lead'}
+    ],
+    special:'signature',
+    doodles:[{name:'moon',pos:'tl',size:60,color:'#ff6b8a'},{name:'heart',pos:'tr',size:44,color:'#ff2d55',bright:true},{name:'flourish',pos:'br',size:96,color:'#ff9fb3'}],
+    next:'one last thing' },
+
+  // FINAL SCREEN
+  { final:true }
+];
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const stage = document.getElementById('stage');
+
+function doodleHTML(d){
+  const cls = 'doodle pos-'+d.pos + (d.bright?' d-bright':'');
+  return `<span class="${cls}" style="width:${d.size}px;height:${d.size}px;color:${d.color||'#ff6b8a'};--d:${(Math.random()*0.5+0.1).toFixed(2)}s">${DOODLES[d.name]||''}</span>`;
+}
+function blockHTML(b){
+  switch(b.type){
+    case 'list': return `<ul>${b.items.map(i=>`<li>${i}</li>`).join('')}</ul>`;
+    case 'quote': return `<p class="quote">${b.text}</p>`;
+    case 'numbered': return b.items.map((it,i)=>`
+      <div class="num-item">
+        <div class="num-head"><span class="n">${i+1}.</span><span>${it.head}</span></div>
+        ${(it.body||[]).map(t=>`<p>${t}</p>`).join('')}
+      </div>`).join('');
+    default: return `<p class="${b.class||''}">${b.text}</p>`;
+  }
+}
+
+PAGES.forEach((p,i)=>{
+  const sec = document.createElement('section');
+  sec.className = 'page' + (i===0?' active':'') + (p.final?' final':'');
+  sec.dataset.index = i;
+
+  if(p.final){
+    sec.innerHTML = `
+      <div class="card final-card">
+        <div class="moon-emoji">🌙</div>
+        <h1 class="final-title">Thank you for reading.</h1>
+        <div class="final-line"></div>
+        <div class="final-sub">— always,</div>
+        <div class="final-name">Sahil</div>
+      </div>`;
+  } else {
+    const doodles = (p.doodles||[]).map(doodleHTML).join('');
+    const blocks = (p.blocks||[]).map(blockHTML).join('');
+    const special = p.special ? (SPECIALS[p.special]||'') : '';
+    const subtitle = p.subtitle ? `<div class="subtitle">${p.subtitle}</div>` : '';
+    const titleHTML = p.title ? `<h1 class="page-title ${p.titleClass||''}">${p.title}</h1>` : '';
+    sec.innerHTML = `
+      <div class="card">
+        ${doodles}
+        ${titleHTML}
+        ${subtitle}
+        <div class="page-body">${blocks}${special}</div>
+        <button class="next-btn">${p.next||'continue'}</button>
+      </div>`;
+  }
+  stage.appendChild(sec);
+});
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+let idx = 0;
+const total = PAGES.length;
+const pages = [...document.querySelectorAll('.page')];
+const progressFill = document.getElementById('progress-fill');
+const backBtn = document.getElementById('back-btn');
+const counter = document.getElementById('counter');
+const footerHint = document.querySelector('.footer-hint');
+
+function showPage(n){
+  n = Math.max(0, Math.min(total-1, n));
+  pages.forEach(p=>{ p.classList.remove('active'); p.classList.remove('in'); });
+  const cur = pages[n];
+  cur.classList.add('active');
+  // force reflow so entrance animations restart
+  void cur.offsetWidth;
+  cur.classList.add('in');
+  cur.querySelector('.card') && (cur.querySelector('.card').scrollTop = 0);
+  cur.scrollTop = 0;
+  idx = n;
+  progressFill.style.width = (((n+1)/total)*100) + '%';
+  backBtn.classList.toggle('show', n>0);
+  const isFinal = PAGES[n].final;
+  counter.style.opacity = isFinal ? '0' : '1';
+  counter.textContent = isFinal ? '' : (String(n+1).padStart(2,'0')+' / '+(total-1));
+  footerHint.style.opacity = (n===0 || isFinal) ? '0.4' : '0.7';
+}
+function next(){ if(idx<total-1) showPage(idx+1); }
+function prev(){ if(idx>0) showPage(idx-1); }
+
+stage.addEventListener('click', e=>{
+  if(e.target.closest('.next-btn')) next();
+  if(e.target.closest('.play-btn')) return; // handled separately
+});
+backBtn.addEventListener('click', prev);
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight' || e.key===' ' || e.key==='Enter'){ if(document.activeElement && document.activeElement.tagName==='BUTTON' && document.activeElement.id==='playBtn') return; e.preventDefault(); next(); }
+  else if(e.key==='ArrowLeft'){ e.preventDefault(); prev(); }
+});
+
+showPage(0);
+
+/* ============================================================
+   VOICE NOTE
+   ============================================================ */
+const waveform = document.getElementById('waveform');
+const playBtn = document.getElementById('playBtn');
+const vtime = document.getElementById('vtime');
+const audio = document.getElementById('voicenote');
+
+const PLAY_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>';
+const PAUSE_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+playBtn.innerHTML = PLAY_ICON;
+
+// build waveform bars
+const NBARS = 38;
+let barsHTML = '';
+for(let i=0;i<NBARS;i++){
+  const h = 10 + Math.round(Math.random()*42);
+  const dur = (0.7 + Math.random()*0.8).toFixed(2);
+  const delay = (Math.random()*0.9).toFixed(2);
+  barsHTML += `<span class="bar" style="--h:${h}px;--dur:${dur}s;--delay:${delay}s"></span>`;
+}
+waveform.innerHTML = barsHTML;
+
+function fmt(s){ s=Math.max(0,Math.floor(s)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+function setPlaying(on){
+  playBtn.innerHTML = on ? PAUSE_ICON : PLAY_ICON;
+  waveform.classList.toggle('playing', on);
+}
+
+/* DEMO MODE (no audio file present).
+   To use your real recording, add a source inside the <audio> tag above, e.g.:
+     <audio id="voicenote" src="voice-note.mp3" preload="metadata"></audio>
+   The button, waveform and timer will then control the real file automatically. */
+let demoTimer=null, demoStart=0, demoRemaining=120;
+const DURATION = 120; // 2 minutes
+
+function startDemo(){
+  demoStart = Date.now();
+  const begin = demoRemaining;
+  setPlaying(true);
+  demoTimer = setInterval(()=>{
+    const elapsed = (Date.now()-demoStart)/1000;
+    const left = begin - elapsed;
+    if(left<=0){ stopDemo(true); return; }
+    demoRemaining = left;
+    vtime.textContent = fmt(left);
+  },200);
+}
+function stopDemo(finished){
+  clearInterval(demoTimer); demoTimer=null;
+  setPlaying(false);
+  if(finished) demoRemaining = DURATION;
+  vtime.textContent = fmt(finished ? DURATION : demoRemaining);
+}
+
+playBtn.addEventListener('click', ()=>{
+  const hasAudio = audio.getAttribute('src');
+  if(hasAudio){
+    if(audio.paused){ audio.play(); } else { audio.pause(); }
+  } else {
+    if(demoTimer) stopDemo(false); else startDemo();
+  }
+});
+
+// hook up real audio if present
+audio.addEventListener('play', ()=>setPlaying(true));
+audio.addEventListener('pause', ()=>setPlaying(false));
+audio.addEventListener('ended', ()=>{ setPlaying(false); vtime.textContent='2:00'; });
+audio.addEventListener('timeupdate', ()=>{
+  if(audio.duration){ vtime.textContent = fmt(audio.duration - audio.currentTime); }
+});
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W,H,DPR,particles=[];
+const COLORS = ['255,107,138','255,45,85','255,159,179'];
+
+function resize(){
+  DPR = Math.min(window.devicePixelRatio||1, 2);
+  W = canvas.width = innerWidth*DPR;
+  H = canvas.height = innerHeight*DPR;
+  canvas.style.width = innerWidth+'px';
+  canvas.style.height = innerHeight+'px';
+}
+function makeParticles(){
+  const count = Math.max(34, Math.min(90, Math.floor(innerWidth/16)));
+  particles = [];
+  for(let i=0;i<count;i++){
+    particles.push({
+      x: Math.random()*W,
+      y: Math.random()*H,
+      r: (Math.random()*2.2+0.6)*DPR,
+      vy: (Math.random()*0.35+0.12)*DPR,
+      sway: Math.random()*Math.PI*2,
+      swaySpeed: Math.random()*0.02+0.005,
+      amp: (Math.random()*0.6+0.2)*DPR,
+      a: Math.random()*0.5+0.12,
+      c: COLORS[Math.floor(Math.random()*COLORS.length)]
+    });
+  }
+}
+function tick(){
+  ctx.clearRect(0,0,W,H);
+  for(const p of particles){
+    p.y -= p.vy;
+    p.sway += p.swaySpeed;
+    const x = p.x + Math.sin(p.sway)*p.amp;
+    if(p.y < -10){ p.y = H+10; p.x = Math.random()*W; }
+    const r = Math.max(0.5, p.r);
+    const g = ctx.createRadialGradient(x,p.y,0,x,p.y,r*4);
+    g.addColorStop(0, `rgba(${p.c},${p.a})`);
+    g.addColorStop(1, `rgba(${p.c},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x,p.y,r*4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = `rgba(${p.c},${Math.min(0.9,p.a+0.2)})`;
+    ctx.beginPath(); ctx.arc(x,p.y,r,0,Math.PI*2); ctx.fill();
+  }
+  requestAnimationFrame(tick);
+}
+resize(); makeParticles(); tick();
+window.addEventListener('resize', ()=>{ resize(); makeParticles(); });
+</script>
+</body>
+</html>
